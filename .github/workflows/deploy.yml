@@ -42,7 +42,7 @@ jobs:
             -e DB_USER=admin \
             -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
             -e DB_HOST=${{ secrets.DB_HOST }} \
-            -e DB_NAME=mysql \
+            -e DB_NAME=trashtrack \
             -e AWS_REGION=us-east-1 \
             -e S3_BUCKET=${{ secrets.S3_BUCKET }} \
             -e AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }} \
