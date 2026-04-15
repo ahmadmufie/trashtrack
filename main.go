@@ -60,7 +60,7 @@ func main() {
 		http.ServeFile(w, r, "index.html")
 	})
 
-	fmt.Println("🚀 TrashTrack Server berjalan di port 8080...")
+	fmt.Println("TrashTrack Server berjalan di port 8080...")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
