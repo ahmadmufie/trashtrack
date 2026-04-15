@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrashTrack - Lapor Sampah Liar</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #eef2f5; padding: 20px; max-width: 800px; margin: auto; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        input, textarea, button { width: 100%; margin: 10px 0; padding: 10px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
+        button { background: #28a745; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background: #218838; }
+        .report-item { border-bottom: 1px solid #eee; padding: 15px 0; display: flex; gap: 15px; }
+        .report-item img { width: 150px; height: 100px; object-fit: cover; border-radius: 5px; }
+        .badge { background: #ffc107; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; color: #2e7d32;">🌍 TrashTrack</h1>
+    <p style="text-align: center;">Laporkan tumpukan sampah liar di sekitar Anda!</p>
+
+    <div class="card">
+        <h3>Buat Laporan Baru</h3>
+        <form id="laporForm">
+            <input type="text" id="lokasi" placeholder="Lokasi (Contoh: Jl. Sudirman No. 1)" required>
+            <textarea id="deskripsi" placeholder="Deskripsi kondisi sampah..." rows="3" required></textarea>
+            <label>Upload Bukti Foto:</label>
+            <input type="file" id="foto" accept="image/*" required>
+            <button type="submit" id="btnSubmit">Kirim Laporan</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>Daftar Laporan Terkini</h3>
+        <div id="listLaporan">Membaca data...</div>
+    </div>
+
+    <script>
+        async function loadReports() {
+            try {
+                const res = await fetch('/api/reports');
+                const data = await res.json();
+                const list = document.getElementById('listLaporan');
+                list.innerHTML = '';
+                if(!data || data.length === 0) return list.innerHTML = '<p>Belum ada laporan.</p>';
+                
+                data.forEach(r => {
+                    list.innerHTML += `
+                        <div class="report-item">
+                            <img src="${r.foto_url}" alt="Foto Sampah">
+                            <div>
+                                <strong>📍 ${r.lokasi}</strong> <span class="badge">${r.status}</span>
+                                <p>${r.deskripsi}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                document.getElementById('listLaporan').innerHTML = '<p>Gagal memuat data.</p>';
+            }
+        }
+
+        document.getElementById('laporForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmit');
+            btn.innerText = "Mengirim..."; btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append("lokasi", document.getElementById('lokasi').value);
+            formData.append("deskripsi", document.getElementById('deskripsi').value);
+            formData.append("foto", document.getElementById('foto').files[0]);
+
+            try {
+                const res = await fetch('/api/reports', { method: 'POST', body: formData });
+                if(res.ok) {
+                    alert("Laporan berhasil dikirim!");
+                    document.getElementById('laporForm').reset();
+                    loadReports();
+                } else {
+                    alert("Gagal mengirim laporan!");
+                }
+            } catch (error) {
+                alert("Terjadi kesalahan sistem.");
+            }
+            btn.innerText = "Kirim Laporan"; btn.disabled = false;
+        });
+
+        loadReports();
+    </script>
+</body>
+</html>
